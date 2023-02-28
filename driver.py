@@ -12,8 +12,10 @@ args = ap.parse_args()
 input_path = getattr(args, 'input')
 
 # checks if input is a valid video/image file, if not, prints an error message.
-if ".jpg" in input_path | ".mp4" in input_path | ".png" in input_path:
-    todo
+if input_path.endswith(".jpg") | input_path.endswith(".png"):
+    process_image(input_path)
+elif input_path.endswith(".mp4"):
+    process_video(input_path)
 else:
     print("Error! Please provide a valid mp4, jpg, or png file.")
 
