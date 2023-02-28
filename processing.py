@@ -1,23 +1,9 @@
 # import the necessary packages
 from torchvision.models import detection
 import numpy as np
-import argparse
-import pickle
 import torch
 import cv2
-
-# construct the argument parser and parse the arguments
-#ap = argparse.ArgumentParser()
-#ap.add_argument("-i", "--image", type=str, required=True,
-#	help="path to the input image")
-#ap.add_argument("-m", "--model", type=str, default="frcnn-resnet",
-#	choices=["frcnn-resnet", "frcnn-mobilenet", "retinanet"],
-#	help="name of the object detection model")
-#ap.add_argument("-l", "--labels", type=str, default="coco_classes.pickle",
-#	help="path to file containing list of categories in COCO dataset")
-#ap.add_argument("-c", "--confidence", type=float, default=0.5,
-#	help="minimum probability to filter weak detections")
-#args = vars(ap.parse_args())
+import time
 
 # set the device we will be using to run the model
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -41,26 +27,50 @@ model = detection.fasterrcnn_resnet50_fpn(pretrained=True, progress=True, # mode
 	num_classes=len(CLASSES), pretrained_backbone=True).to(DEVICE)
 model.eval()
 
-def process_image(image_filepath):
+def process_image(image_filepath): # process a single image
     # load the image from disk
     image = cv2.imread(image_filepath)
     orig = image.copy()
 
+    processed_img = process_frame(image, orig)
+
+    # show the output image
+    cv2.imshow("Output", processed_img)
+    cv2.waitKey(0)
+
+def process_video(video_filepath): # process a video frame-by-frame
+    video = cv2.VideoCapture()
+    video.open(video_filepath)
+    tic = time.time()
+    while(video.isOpened()):
+        ret, frame = video.read()
+        orig = frame.copy()
+
+        processed_img = process_frame(frame, orig)
+
+        cv2.imshow("Output", processed_img)
+        toc = time.time()
+        print("FPS: {:.3f}".format(1/(toc-tic)))
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    video.release()
+
+def process_frame(img, orig): # process one image through the model; code provided by Adrian Rosebrock
     # convert the image from BGR to RGB channel ordering and change the
     # image from channels last to channels first ordering
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = image.transpose((2, 0, 1))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = img.transpose((2, 0, 1))
 
     # add the batch dimension, scale the raw pixel intensities to the
     # range [0, 1], and convert the image to a floating point tensor
-    image = np.expand_dims(image, axis=0)
-    image = image / 255.0
-    image = torch.FloatTensor(image)
+    img = np.expand_dims(img, axis=0)
+    img = img / 255.0
+    img = torch.FloatTensor(img)
 
     # send the input to the device and pass the it through the network to
     # get the detections and predictions
-    image = image.to(DEVICE)
-    detections = model(image)[0]
+    img = img.to(DEVICE)
+    detections = model(img)[0]
 
     # loop over the detections
     for i in range(0, len(detections["boxes"])):
@@ -88,7 +98,4 @@ def process_image(image_filepath):
             y = startY - 15 if startY - 15 > 15 else startY + 15
             cv2.putText(orig, label, (startX, y),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
-
-    # show the output image
-    cv2.imshow("Output", orig)
-    cv2.waitKey(0)
+    return orig

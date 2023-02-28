@@ -1,5 +1,5 @@
 import argparse
-from detect_ai import process_image
+from processing import process_image, process_video
 
 # constructs the argument parser to take in a single input path
 ap = argparse.ArgumentParser()
