@@ -15,5 +15,5 @@ input_path = getattr(args, 'input')
 if ".jpg" in input_path | ".mp4" in input_path | ".png" in input_path:
     todo
 else:
-    print("Error! Please give a valid mp4, jpg, or png file.")
+    print("Error! Please provide a valid mp4, jpg, or png file.")
 
