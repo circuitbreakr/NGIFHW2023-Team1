@@ -41,8 +41,8 @@ def process_image(image_filepath): # process a single image
 def process_video(video_filepath): # process a video frame-by-frame
     video = cv2.VideoCapture()
     video.open(video_filepath)
-    tic = time.time()
-    while(video.isOpened()):
+    while(video.isOpened()):  
+        tic = time.time()
         ret, frame = video.read()
         orig = frame.copy()
 
