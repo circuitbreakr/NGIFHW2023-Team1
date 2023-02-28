@@ -7,4 +7,9 @@ Team 1's project for the [2023 Northrop Grumman Innovation Factory Hack Week](ht
 
 ## What it does
 
+## How to use
+1) Download files
+2) Open commandline prompt in the folder with driver.py
+3) Run `python driver.py -i <filepath to image or video>` on the commandline
+
 ## How we made it
