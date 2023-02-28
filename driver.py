@@ -1,4 +1,5 @@
 import argparse
+from detect_ai import process_image
 
 # constructs the argument parser to take in a single input path
 ap = argparse.ArgumentParser()
@@ -18,4 +19,3 @@ elif input_path.endswith(".mp4"):
     process_video(input_path)
 else:
     print("Error! Please provide a valid mp4, jpg, or png file.")
-
