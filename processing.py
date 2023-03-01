@@ -1,5 +1,6 @@
 # import the necessary packages
 from torchvision.models import detection
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import numpy as np
 import torch
 import cv2
@@ -10,21 +11,15 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # load the list of categories in the COCO dataset and then generate a
 # set of bounding box colors for each class
-CLASSES = ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'street sign', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'hat', 'backpack', 'umbrella', 'shoe', 'eye glasses', 'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket', 'bottle', 'plate', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'mirror', 'dining table', 'window', 'desk', 'toilet', 'door', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'blender', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush', 'hair brush')
+CLASSES = ('background', 'ai_gen')
 # pickle.loads(open(args["labels"], "rb").read())
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
-# initialize a dictionary containing model name and its corresponding 
-# torchvision function call
-MODELS = {
-	"frcnn-resnet": detection.fasterrcnn_resnet50_fpn,
-	"frcnn-mobilenet": detection.fasterrcnn_mobilenet_v3_large_320_fpn,
-	"retinanet": detection.retinanet_resnet50_fpn
-}
-
 # load the model and set it to evaluation mode
-model = detection.fasterrcnn_resnet50_fpn(pretrained=True, progress=True, # model = MODELS[args["model"]](pretrained=True, progress=True,
-	num_classes=len(CLASSES), pretrained_backbone=True).to(DEVICE)
+model = detection.fasterrcnn_resnet50_fpn(weights='DEFAULT')
+in_features = model.roi_heads.box_predictor.cls_score.in_features
+model.roi_heads.box_predictor = FastRCNNPredictor(in_features, len(CLASSES))
+
 model.eval()
 
 def process_image(image_filepath): # process a single image
@@ -84,7 +79,7 @@ def process_frame(img, orig): # process one image through the model; code provid
             # extract the index of the class label from the detections,
             # then compute the (x, y)-coordinates of the bounding box
             # for the object
-            idx = int(detections["labels"][i])-1
+            idx = int(detections["labels"][i])
             box = detections["boxes"][i].detach().cpu().numpy()
             (startX, startY, endX, endY) = box.astype("int")
 
