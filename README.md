@@ -1,14 +1,13 @@
 # NGIFHW2023-Team1
 Team 1's project for the [2023 Northrop Grumman Innovation Factory Hack Week](https://www.marksz.org/hackweek/)!
 
-*wip*
-
 ## Idea
 AI-generated or deepfaked image/video detector
 
 ## What it does
 `Driver.py` takes in your input, check if it's valid (image/video) or not, then invokes the proper processing method from the processing file!  
-`Processing.py` uses a model to examine your file and outputs the detected items in the command line!
+`Processing.py` uses a model to examine your file and outputs the detected items in the command line!  
+The other files make up the model and other things needed for processing, trained using a custom dataset we have created.
 
 ## How to use
 1) Download files
@@ -23,4 +22,4 @@ Modules we used:
 
 Tutorials:
 - [Object Detection with Pre-Trained Networks](https://pyimagesearch.com/2021/08/02/pytorch-object-detection-with-pre-trained-networks/)
-- 
+- [Training with PyTorch](https://pytorch.org/tutorials/beginner/introyt/trainingyt.html)
